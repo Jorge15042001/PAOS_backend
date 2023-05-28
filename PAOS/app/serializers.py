@@ -5,7 +5,7 @@ from .models import Product, ProductCharacteristic
 class ProductCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCharacteristic
-        fields = ["value"]
+        fields = ["id", "value"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -13,13 +13,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ["name", "price", "deleted", "available", "characteristics"]
+        fields = ["name", "price", "deleted",
+                  "available", "characteristics", "id"]
 
     def create(self, validated_data):
         characteristics_data = validated_data.pop("characteristics")
         product = Product.objects.create(**validated_data)
 
         for characteristic_data in characteristics_data:
-            characteristic = ProductCharacteristic.objects.create(product = product, **characteristic_data)
-            
+            ProductCharacteristic.objects.create(product=product, **characteristic_data)
+
         return product

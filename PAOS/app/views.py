@@ -17,7 +17,7 @@ class ProductAPI(APIView):
 
     def get(self, request):
         products = ProductSerializer(Product.objects.all(), many=True).data
-        return Response({"success":True, "products":products})
+        return Response({"success": True, "products": products})
 
     def post(self, request):
 
@@ -30,10 +30,12 @@ class ProductAPI(APIView):
 
         if product.is_valid():
             p = product.save()
-            return Response({"success": True, "product": ProductSerializer(p).data}, status=status.HTTP_200_OK)
-        return Response({"success":False, "errors":product.errors},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": True,
+                             "product": ProductSerializer(p).data},
+                            status=status.HTTP_200_OK)
+        return Response({"success": False, "errors": product.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProductDetailAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
-
-

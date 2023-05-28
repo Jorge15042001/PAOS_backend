@@ -16,7 +16,8 @@ class ProductAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        products = ProductSerializer(Product.objects.filter(deleted = False), many=True).data
+        products = ProductSerializer(
+            Product.objects.filter(deleted=False), many=True).data
         return Response({"success": True, "products": products})
 
     def post(self, request):
@@ -57,30 +58,31 @@ class ProductDetailAPI(APIView):
                         status=status.HTTP_200_OK)
 
     def put(self, request, product_id):
-        print(product_id)
-        product:Product = self.get_product(product_id)
+        product: Product = self.get_product(product_id)
         if not product:
             return Response({"success": False,
                              "error": "could not find product id"},
                             status=status.HTTP_404_NOT_FOUND)
         new_data = request.data
-        if new_data.get("name"):
+
+        if "name" in new_data:
             product.name = new_data["name"]
-        if new_data.get("price"):
+        if "price" in new_data:
             product.price = new_data["price"]
-        if new_data.get("available"):
+        if "available" in new_data:
+            print("setting available")
             product.available = new_data["available"]
-        if new_data.get("deleted"):
+        if "deleted" in new_data:
             product.deleted = new_data["deleted"]
 
         try:
             product.save()
-        except :
+        except:
             return Response({"success": False,
                              "error": "Failed to save updated values"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"success": True, "product":ProductSerializer(product).data},
+        return Response({"success": True, "product": ProductSerializer(product).data},
                         status=status.HTTP_200_OK)
 
     def delete(self, request, product_id):
@@ -91,5 +93,5 @@ class ProductDetailAPI(APIView):
                             status=status.HTTP_404_NOT_FOUND)
         product.deleted = True
         product.save()
-        return Response({"success": True, "product":ProductSerializer(product).data},
+        return Response({"success": True, "product": ProductSerializer(product).data},
                         status=status.HTTP_200_OK)

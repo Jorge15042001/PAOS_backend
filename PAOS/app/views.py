@@ -82,7 +82,8 @@ class ProductDetailAPI(APIView):
                              "error": "Failed to save updated values"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"success": True, "product": ProductSerializer(product).data},
+        return Response({"success": True,
+                         "product": ProductSerializer(product).data},
                         status=status.HTTP_200_OK)
 
     def delete(self, request, product_id):
@@ -93,5 +94,77 @@ class ProductDetailAPI(APIView):
                             status=status.HTTP_404_NOT_FOUND)
         product.deleted = True
         product.save()
-        return Response({"success": True, "product": ProductSerializer(product).data},
+
+        return Response({"success": True,
+                         "product": ProductSerializer(product).data},
                         status=status.HTTP_200_OK)
+
+
+class ProductCharacteristicAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        characteristic = ProductCharacteristicSerializer(data=request.data)
+        print(characteristic)
+        print(characteristic.is_valid())
+        if characteristic.is_valid():
+            c = characteristic.save()
+            return Response({"success": True, "characteristic":
+                             ProductCharacteristicSerializer(c).data},
+                            status=status.HTTP_200_OK)
+        return Response({"success": False, "errors": characteristic.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProductCharacteristicDetailAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_characteristic(self, characteristic_id):
+        try:
+            return ProductCharacteristic.objects.get(id=characteristic_id)
+        except ProductCharacteristic.DoesNotExist:
+            return None
+
+    def get(self, request, characteristic_id):
+        characteristic = self.get_characteristic(characteristic_id)
+
+        if not characteristic:
+            return Response({"success": False, "error":
+                             "could not find product characteristic id"},
+                            status=status.HTTP_404_NOT_FOUND)
+        serialized = ProductCharacteristicSerializer(characteristic).data
+
+        return Response({"success": True, "characteristic": serialized},
+                        status=status.HTTP_200_OK)
+
+    def put(self, request, characteristic_id):
+        characteristic = self.get_characteristic(characteristic_id)
+
+        if not characteristic:
+            return Response({"success": False, "error":
+                             "could not find product characteristic id"},
+                            status=status.HTTP_404_NOT_FOUND)
+        if "value" in request.data:
+            characteristic.value = request.data["value"]
+        try:
+            characteristic.save()
+        except:
+            return Response({"success": False,
+                             "error": "Failed to save updated values"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"success": True, "product":
+                         ProductCharacteristicSerializer(characteristic).data},
+                        status=status.HTTP_200_OK)
+
+    def delete(self, request, characteristic_id):
+        characteristic = self.get_characteristic(characteristic_id)
+
+        if not characteristic:
+            return Response({"success": False, "error":
+                             "could not find product characteristic id"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        characteristic.delete()
+        return Response({"success": True}, status=status.HTTP_200_OK)
+        pass

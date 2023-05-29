@@ -5,7 +5,7 @@ from .models import Product, ProductCharacteristic
 class ProductCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCharacteristic
-        fields = ["id", "value"]
+        fields = ["id", "value", "product"]
 
 
 class ProductSerializer(serializers.ModelSerializer):

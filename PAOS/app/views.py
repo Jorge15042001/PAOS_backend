@@ -148,7 +148,8 @@ class ProductCharacteristicDetailAPI(APIView):
             characteristic.value = request.data["value"]
         try:
             characteristic.save()
-        except:
+        except Exception as e:
+            print(e)
             return Response({"success": False,
                              "error": "Failed to save updated values"},
                             status=status.HTTP_400_BAD_REQUEST)

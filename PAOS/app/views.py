@@ -168,4 +168,3 @@ class ProductCharacteristicDetailAPI(APIView):
 
         characteristic.delete()
         return Response({"success": True}, status=status.HTTP_200_OK)
-        pass

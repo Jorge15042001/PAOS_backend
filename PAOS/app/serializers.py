@@ -10,16 +10,15 @@ class ProductCharacteristicSerializer(serializers.ModelSerializer):
         model = ProductCharacteristic
         fields = ["id", "value", ]
 
-
 class ProductSerializer(serializers.ModelSerializer):
     image_base64 = serializers.SerializerMethodField(read_only=True)
-    image =Base64ImageField()
+    image = Base64ImageField()
 
     characteristics = ProductCharacteristicSerializer(many=True)
 
     class Meta:
         model = Product
-        fields = ["name", "price", "deleted", "available",
+        fields = ["name", "price", "deleted", "available", "category",
                   "characteristics", "id", "image", "image_base64"]
 
     def create(self, validated_data):
@@ -33,11 +32,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_image_base64(self, product):
         format = product.image.path.split(".")[-1]
-        print(format)
         img = open(product.image.path, "rb")
         data = img.read()
-        print(str(base64.b64encode(data)))
-        #  print(f"data:image/{format};base64,{str(base64.b64encode(data))}")
         return f"data:image/{format};base64,{base64.b64encode(data).decode('utf-8')}"
 
 

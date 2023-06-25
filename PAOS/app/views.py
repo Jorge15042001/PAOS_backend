@@ -24,6 +24,7 @@ class ProductAPI(APIView):
         data = {
             'name': request.data.get('name'),
             'price': request.data.get('price'),
+            'category': request.data.get('category'),
             'characteristics': request.data.get('characteristics'),
             'image': request.data.get('image')
         }

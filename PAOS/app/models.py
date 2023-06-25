@@ -8,7 +8,7 @@ class Product(models.Model):
     price = models.FloatField()
     deleted = models.BooleanField(default=False)
     available = models.BooleanField(default=True)
-    imgage = models.ImageField(upload_to="product_images", default="/etc/images/no_image.png")
+    image = models.ImageField(upload_to="product_images", default="/etc/images/no_image.png")
 
 
 class ProductCharacteristic(models.Model):

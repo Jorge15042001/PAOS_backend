@@ -13,7 +13,6 @@ from .models import Product, ProductCharacteristic, CartProduct
 
 
 class ProductAPI(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         products = ProductSerializer(
@@ -102,7 +101,6 @@ class ProductDetailAPI(APIView):
 
 
 class ProductCharacteristicAPI(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
         characteristic = ProductCharacteristicSerializer(data=request.data)

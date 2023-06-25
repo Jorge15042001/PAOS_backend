@@ -10,6 +10,7 @@ pylint = "*"
 pillow = "*"
 django-extra-fields = "*"
 psycopg2 = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 

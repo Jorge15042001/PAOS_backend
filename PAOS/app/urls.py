@@ -10,4 +10,8 @@ urlpatterns = [
          name="product_characteristic"),
     path("characteristic/<int:characteristic_id>", views.ProductCharacteristicDetailAPI.as_view(),
          name="product_characteristic_detail"),
+    path("cart/", views.ProductCartAPI.as_view(),
+         name="product_characteristic"),
+    path("cart/<int:item_id>", views.ProductCartDetailAPI.as_view(),
+         name="product_characteristic_detail"),
 ]

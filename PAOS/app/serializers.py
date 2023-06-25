@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, ProductCharacteristic
+from .models import Product, ProductCharacteristic, CartProduct
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -29,3 +29,9 @@ class ProductSerializer(serializers.ModelSerializer):
             ProductCharacteristic.objects.create(product=product,
                                                  **characteristic_data)
         return product
+
+
+class CartProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartProduct
+        fields = ["id", "client", "product"]

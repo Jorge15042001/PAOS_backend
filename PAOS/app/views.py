@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 
-from .serializers import ProductSerializer, ProductCharacteristicSerializer
-from .models import Product, ProductCharacteristic
+from .serializers import ProductSerializer, ProductCharacteristicSerializer, CartProductSerializer
+from .models import Product, ProductCharacteristic, CartProduct
 
 # Create your views here.
 
@@ -168,4 +168,61 @@ class ProductCharacteristicDetailAPI(APIView):
                             status=status.HTTP_404_NOT_FOUND)
 
         characteristic.delete()
+        return Response({"success": True}, status=status.HTTP_200_OK)
+
+
+class ProductCartAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        cart_products = ProductSerializer(
+            CartProduct.objects.filter(client=request.user), many=True).data
+        return Response({"success": True, "cart": cart_products})
+
+
+class ProductCartDetailAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_cart_item(self, item_id):
+        try:
+            return CartProduct.objects.get(id=item_id)
+        except CartProduct.DoesNotExist:
+            return None
+
+    def post(self, request):
+
+        data = {
+            'client': request.data.get('client_id'),
+            'product': request.data.get('product_id'),
+        }
+        cart_product = CartProductSerializer(data=data)
+
+        if cart_product.is_valid():
+            p = cart_product.save()
+            return Response({"success": True,
+                             "product": CartProductSerializer(p).data},
+                            status=status.HTTP_200_OK)
+        return Response({"success": False, "errors": cart_product.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request, item_id):
+        cart_product = self.get_cart_item(item_id)
+        if not cart_product:
+            return Response({"success": False, "error":
+                             "could not find cart item"},
+                            status=status.HTTP_404_NOT_FOUND)
+        serialized = CartProductSerializer(cart_product).data
+
+        return Response({"success": True, "cart_item": serialized},
+                        status=status.HTTP_200_OK)
+
+    def delete(self, request, item_id):
+        cart_item = self.get_cart_item(item_id)
+
+        if not cart_item:
+            return Response({"success": False, "error":
+                             "could not find cart item id"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        cart_item.delete()
         return Response({"success": True}, status=status.HTTP_200_OK)

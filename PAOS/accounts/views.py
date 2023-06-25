@@ -32,21 +32,17 @@ class APILogin (APIView):
         '''
         username = request.data.get('username')
         password = request.data.get('password')
-        print(username, password)
+
         if username and password:
             # Test username/password combination
-            print("before authenticate")
             user = authenticate(username=username, password=password)
             # Found a match
             if user is not None:
                 # User is active
                 if user.is_active:
                     # Officially log the user in
-                    print("before login")
                     login(self.request, user)
                     user_data = PAOSUserSerializer(user).data
-                    print(request.user.is_authenticated)
-                    print("successfull login")
                     return Response(
                         {'success': True, "user-data": user_data},
                         status=status.HTTP_200_OK

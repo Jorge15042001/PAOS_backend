@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Product, ProductCharacteristic, CartProduct
+from accounts.serializers import PAOSUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -32,6 +33,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class CartProductSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    #  client = PAOSUserSerializer()
     class Meta:
         model = CartProduct
-        fields = ["id", "client", "product"]
+        fields = ["id",  "product"]

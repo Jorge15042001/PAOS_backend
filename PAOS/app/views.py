@@ -175,10 +175,26 @@ class ProductCartAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        cart_products = ProductSerializer(
+        cart_products = CartProductSerializer(
             CartProduct.objects.filter(client=request.user), many=True).data
         return Response({"success": True, "cart": cart_products})
 
+    def post(self, request):
+
+        data = {
+            'client': request.user.id,
+            'product': request.data.get('product'),
+        }
+        cart_product = CartProductSerializer(data=data)
+
+        if cart_product.is_valid():
+            saved_cart_product = cart_product.save()
+            return Response({"success": True,
+                             "product": CartProductSerializer(saved_cart_product).data},
+                            status=status.HTTP_200_OK)
+
+        return Response({"success": False, "errors": cart_product.errors},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 class ProductCartDetailAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -189,21 +205,6 @@ class ProductCartDetailAPI(APIView):
         except CartProduct.DoesNotExist:
             return None
 
-    def post(self, request):
-
-        data = {
-            'client': request.data.get('client_id'),
-            'product': request.data.get('product_id'),
-        }
-        cart_product = CartProductSerializer(data=data)
-
-        if cart_product.is_valid():
-            p = cart_product.save()
-            return Response({"success": True,
-                             "product": CartProductSerializer(p).data},
-                            status=status.HTTP_200_OK)
-        return Response({"success": False, "errors": cart_product.errors},
-                        status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, item_id):
         cart_product = self.get_cart_item(item_id)

@@ -25,7 +25,8 @@ class ProductAPI(APIView):
         data = {
             'name': request.data.get('name'),
             'price': request.data.get('price'),
-            'characteristics': request.data.get('characteristics')
+            'characteristics': request.data.get('characteristics'),
+            'image': request.data.get('image')
         }
         product = ProductSerializer(data=data)
 

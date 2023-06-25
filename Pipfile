@@ -8,6 +8,8 @@ django = "*"
 djangorestframework = "*"
 pylint = "*"
 pillow = "*"
+django-extra-fields = "*"
+psycopg2 = "*"
 
 [dev-packages]
 

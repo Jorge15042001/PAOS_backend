@@ -1,4 +1,5 @@
 from rest_framework import serializers
+import base64
 from .models import Product, ProductCharacteristic, CartProduct
 from accounts.serializers import PAOSUserSerializer
 from drf_extra_fields.fields import Base64ImageField
@@ -11,16 +12,15 @@ class ProductCharacteristicSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    #  image = serializers.SerializerMethodField(read_only=True)
-    image=Base64ImageField(represent_in_base64=True)
-
+    image_base64 = serializers.SerializerMethodField(read_only=True)
+    image =Base64ImageField()
 
     characteristics = ProductCharacteristicSerializer(many=True)
 
     class Meta:
         model = Product
         fields = ["name", "price", "deleted", "available",
-                  "characteristics", "id", "image"]
+                  "characteristics", "id", "image", "image_base64"]
 
     def create(self, validated_data):
         characteristics_data = validated_data.pop("characteristics")
@@ -30,6 +30,15 @@ class ProductSerializer(serializers.ModelSerializer):
             ProductCharacteristic.objects.create(product=product,
                                                  **characteristic_data)
         return product
+
+    def get_image_base64(self, product):
+        format = product.image.path.split(".")[-1]
+        print(format)
+        img = open(product.image.path, "rb")
+        data = img.read()
+        print(str(base64.b64encode(data)))
+        #  print(f"data:image/{format};base64,{str(base64.b64encode(data))}")
+        return f"data:image/{format};base64,{base64.b64encode(data).decode('utf-8')}"
 
 
 class CartProductSerializer(serializers.ModelSerializer):

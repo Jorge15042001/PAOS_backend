@@ -35,4 +35,13 @@
    git clone https://github.com/Jorge15042001/PAOS_backend.git
    ```
 
+1. Edit project configuration
 
+    ![Edit configuration](./images/configure_project.png)
+
+
+1. Edit wsgi configuration
+
+    ![Edit wsgi configuration](./images/wsgi_configuration.png)
+
+1. static files

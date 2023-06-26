@@ -183,7 +183,21 @@ class ProductCartAPI(APIView):
         data = {
             'client': request.user.id,
             'product': request.data.get('product'),
+            'quantity': request.data.get('quantity'),
         }
+        try:
+            # if Product already in cart
+            cart_product = CartProduct.objects.get(client=data["client"],
+                                                   product=data["product"])
+            cart_product.quantity += data["quantity"]
+            cart_product.save()
+            return Response({"success": True,
+                             "product": CartProductSerializer(cart_product).data},
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+
+        # if Product not in cart
         cart_product = CartProductSerializer(data=data)
 
         if cart_product.is_valid():

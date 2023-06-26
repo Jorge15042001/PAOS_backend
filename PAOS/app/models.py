@@ -27,5 +27,6 @@ class ProductCharacteristic(models.Model):
 class CartProduct(models.Model):
     product = models.ForeignKey("Product", on_delete=models.CASCADE,
                                 related_name="product")
+    quantity = models.IntegerField(default=1)
     client = models.ForeignKey("accounts.PAOSUser", on_delete=models.CASCADE,
                                related_name="client")

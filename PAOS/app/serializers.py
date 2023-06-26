@@ -1,6 +1,7 @@
 from rest_framework import serializers
 import base64
 from .models import Product, ProductCharacteristic, CartProduct
+from accounts.models import PAOSUser
 from accounts.serializers import PAOSUserSerializer
 from drf_extra_fields.fields import Base64ImageField
 
@@ -9,6 +10,7 @@ class ProductCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCharacteristic
         fields = ["id", "value", ]
+
 
 class ProductSerializer(serializers.ModelSerializer):
     image_base64 = serializers.SerializerMethodField(read_only=True)
@@ -31,15 +33,28 @@ class ProductSerializer(serializers.ModelSerializer):
         return product
 
     def get_image_base64(self, product):
-        format = product.image.path.split(".")[-1]
+        format = product.image.path.split(".")[-1]  # file format
         img = open(product.image.path, "rb")
         data = img.read()
-        return f"data:image/{format};base64,{base64.b64encode(data).decode('utf-8')}"
+        base64_str = base64.b64encode(data).decode('utf-8')
+        return f"data:image/{format};base64,{base64_str}"
 
 
 class CartProductSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()
-    #  client = PAOSUserSerializer()
+    product = ProductSerializer(read_only=True)
+    client = PAOSUserSerializer(read_only=True)
+
     class Meta:
         model = CartProduct
-        fields = ["id",  "product"]
+        fields = ["id",  "product", "client", "quantity"]
+
+    def to_internal_value(self, data):
+        ret = {
+            "product": Product(id=data["product"]),
+            "client": PAOSUser(id=data["client"]),
+            "quantity": data["quantity"],
+        }
+        return ret
+
+    #  def create(self, validated_data):
+    #      print(validated_data)

@@ -11,7 +11,7 @@ urlpatterns = [
     path("characteristic/<int:characteristic_id>", views.ProductCharacteristicDetailAPI.as_view(),
          name="product_characteristic_detail"),
     path("cart/", views.ProductCartAPI.as_view(),
-         name="product_characteristic"),
+         name="product_cart"),
     path("cart/<int:item_id>", views.ProductCartDetailAPI.as_view(),
-         name="product_characteristic_detail"),
+         name="product_cart_detail"),
 ]

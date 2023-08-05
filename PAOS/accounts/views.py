@@ -110,3 +110,5 @@ class APISignup (APIView):
             {'success': True, },
             status=status.HTTP_200_OK
         )
+
+

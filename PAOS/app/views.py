@@ -6,8 +6,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 
-from .serializers import ProductSerializer, ProductCharacteristicSerializer, CartProductSerializer
-from .models import Product, ProductCharacteristic, CartProduct
+from .serializers import ProductSerializer, ProductCharacteristicSerializer, CartProductSerializer, OrderSerializer
+from .models import Product, ProductCharacteristic, CartProduct, Order, OrderProduct, OrderStatus
+from django.db import transaction
 
 # Create your views here.
 
@@ -58,6 +59,7 @@ class ProductDetailAPI(APIView):
         return Response({"success": True, "product": product},
                         status=status.HTTP_200_OK)
 
+    @transaction.atomic
     def put(self, request, product_id):
         product: Product = self.get_product(product_id)
         if not product:
@@ -71,7 +73,6 @@ class ProductDetailAPI(APIView):
         if "price" in new_data:
             product.price = new_data["price"]
         if "available" in new_data:
-            print("setting available")
             product.available = new_data["available"]
         if "deleted" in new_data:
             product.deleted = new_data["deleted"]
@@ -105,8 +106,6 @@ class ProductCharacteristicAPI(APIView):
 
     def post(self, request):
         characteristic = ProductCharacteristicSerializer(data=request.data)
-        print(characteristic)
-        print(characteristic.is_valid())
         if characteristic.is_valid():
             c = characteristic.save()
             return Response({"success": True, "characteristic":
@@ -178,6 +177,7 @@ class ProductCartAPI(APIView):
             CartProduct.objects.filter(client=request.user), many=True).data
         return Response({"success": True, "cart": cart_products})
 
+    @transaction.atomic
     def post(self, request):
 
         data = {
@@ -185,11 +185,17 @@ class ProductCartAPI(APIView):
             'product': request.data.get('product'),
             'quantity': request.data.get('quantity'),
         }
+
         try:
             # if Product already in cart
             cart_product = CartProduct.objects.get(client=data["client"],
                                                    product=data["product"])
             cart_product.quantity += data["quantity"]
+            if cart_product.quantity <= 0:
+                cart_product.delete()
+                return Response({"success": True,
+                                 "product": None},
+                                status=status.HTTP_200_OK)
             cart_product.save()
             return Response({"success": True,
                              "product": CartProductSerializer(cart_product).data},
@@ -198,6 +204,9 @@ class ProductCartAPI(APIView):
             print(e)
 
         # if Product not in cart
+        if int(data["quantity"]) <= 0:
+            return Response({"success": False, "errors": "invalid quantity"},
+                            status=status.HTTP_400_BAD_REQUEST)
         cart_product = CartProductSerializer(data=data)
 
         if cart_product.is_valid():
@@ -209,6 +218,7 @@ class ProductCartAPI(APIView):
         return Response({"success": False, "errors": cart_product.errors},
                         status=status.HTTP_400_BAD_REQUEST)
 
+
 class ProductCartDetailAPI(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -217,7 +227,6 @@ class ProductCartDetailAPI(APIView):
             return CartProduct.objects.get(id=item_id)
         except CartProduct.DoesNotExist:
             return None
-
 
     def get(self, request, item_id):
         cart_product = self.get_cart_item(item_id)
@@ -240,3 +249,97 @@ class ProductCartDetailAPI(APIView):
 
         cart_item.delete()
         return Response({"success": True}, status=status.HTTP_200_OK)
+
+
+class OrderAPI(APIView):
+    def get(self, request):
+        orders = OrderSerializer(
+            Order.objects.filter(state="PENDING"), many=True).data
+        return Response({"success": True, "orders": orders})
+
+
+class OrderCartAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    @transaction.atomic
+    def post(self, request):
+        cart_products = CartProduct.objects.filter(client=request.user)
+
+        delivery_address = request.data.get("delivery_address"),
+        pending_status = OrderStatus.objects.get(name="PENDING")
+
+        order = Order.objects.create(
+            client=request.user, state=pending_status,
+            delivery_address=delivery_address)
+
+        list(map(lambda c_product: OrderProduct.objects.create(
+            product=c_product.product, order=order), cart_products))
+
+        order.save()
+        #  order = Order.objects.create(client=request.use, state="PENDING",delivery_address="")
+        serialized_order = OrderSerializer(order).data
+
+        # remove the contents of the cart
+        cart_products.delete()
+        return Response({"success": True, "order": serialized_order})
+
+
+class OrderDetailAPI(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_order(self, order_id):
+        try:
+            return Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return None
+
+    def put(self, request, order_id):
+        order = self.get_order(order_id)
+        if not order:
+            return Response({"success": False, "error":
+                             f"could not find order with id {order_id}"},
+                            status=status.HTTP_404_NOT_FOUND)
+        if order.client is not request.user:
+            return Response({"success": False, "error":
+                             f"not allowed to read order with id {order_id}"},
+                            status=status.HTTP_403_FORBIDDEN)
+        if "state" in request.data:
+            state_str: str = request.data.get("state")
+            new_state = OrderStatus.objects.get(name=state_str)
+            order.state = new_state
+        try:
+            order.save()
+        except Exception as e:
+            print(e)
+            return Response({"success": False,
+                             "error": "Failed to save updated order"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"success": True, "order":
+                         OrderSerializer(order).data},
+                        status=status.HTTP_200_OK)
+
+
+class OderDelivererAPI(APIView):
+    def put(self, request, order_id):
+        order = self.get_order(order_id)
+        if not order:
+            return Response({"success": False, "error":
+                             f"could not find order with id {order_id}"},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        if "state" in request.data:
+            state_str: str = request.data.get("state")
+            new_state = OrderStatus.objects.get(name=state_str)
+            order.state = new_state
+        try:
+            order.save()
+        except Exception as e:
+            print(e)
+            return Response({"success": False,
+                             "error": "Failed to save updated order"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"success": True, "order":
+                         OrderSerializer(order).data},
+                        status=status.HTTP_200_OK)

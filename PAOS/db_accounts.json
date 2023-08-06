@@ -1,0 +1,38 @@
+[
+  {
+    "model": "accounts.paosuser",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$cAsnPrcxTkPmXusZYYgJkk$bsvNYdD4CyAXLKCH4SP7rT9gvsWXM3Ph31E9FSdB80A=",
+      "last_login": "2023-08-05T17:18:54.188Z",
+      "is_superuser": true,
+      "username": "jvulgari",
+      "first_name": "",
+      "last_name": "",
+      "email": "jvulgari@espol.edu.ec",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2023-06-25T23:12:52.572Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.paosuser",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$Z9tY04vbBoOb8zEffh7OfJ$PFVsdClDGwrkdAAFA4Z37x4HQgSlbIsAZ0veW1BFXHY=",
+      "last_login": "2023-06-26T03:41:20.564Z",
+      "is_superuser": false,
+      "username": "ycedenog",
+      "first_name": "yonkani",
+      "last_name": "cedeno",
+      "email": "yonmaced@espol.edu.ec",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2023-06-26T03:40:11.261Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

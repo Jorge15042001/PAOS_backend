@@ -77,7 +77,11 @@ WSGI_APPLICATION = 'PAOS.wsgi.application'
 # CORS
 CORS_ALLOWED_ORIGINS= (
     'http://localhost:4200',  # for localhost (Angular)
+    'https://yonmaced.pythonanywhere.com'
 )
+#CORS_ALLOW_ALL_ORIGINS = True
+CORS_EXPOSE_HEADERS=("Set-Cookie", "*")
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Database

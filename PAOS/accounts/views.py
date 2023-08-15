@@ -21,7 +21,7 @@ class APILogin (APIView):
     def get(self, request):
         '''
         '''
-        if request.user.is_authenticated:
+        if not request.user.is_authenticated:
             return Response({"success": True,
                              "user-data": None,
                              "authenticated": False})

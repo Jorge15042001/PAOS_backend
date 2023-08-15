@@ -21,8 +21,15 @@ class APILogin (APIView):
     def get(self, request):
         '''
         '''
+        if request.user.is_authenticated:
+            return Response({"success": True,
+                             "user-data": None,
+                             "authenticated": False})
+
+        user_data = PAOSUserSerializer(request.user).data
         return Response({"success": True,
-                         "authenticated": request.user.is_authenticated})
+                         "user-data": user_data,
+                         "authenticated": True})
 
     def post(self, request, *args, **kwargs):
         '''
@@ -110,5 +117,3 @@ class APISignup (APIView):
             {'success': True, },
             status=status.HTTP_200_OK
         )
-
-

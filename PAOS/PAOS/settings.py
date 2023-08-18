@@ -74,15 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'PAOS.wsgi.application'
 
-# CORS
-CORS_ALLOWED_ORIGINS = (
-    'http://localhost:4200',  # for localhost (Angular)
-    'http://localhost:8100',  # for localhost (ionic)
-    'https://yonmaced.pythonanywhere.com',
-    'https://paos.jorgevulgarin.cc',
-)
-# CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Database

@@ -11,6 +11,8 @@ pillow = "*"
 django-extra-fields = "*"
 psycopg2 = "*"
 django-cors-headers = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 

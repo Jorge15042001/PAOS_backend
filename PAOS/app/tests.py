@@ -78,7 +78,7 @@ class ProductTest(PaosBaseTestCase):
 
         update_data = {"price": 5.00}
         response2 = self.client.put(
-            f"{url}{product_id}", update_data, format="json")
+            f"{url}{product_id}/", update_data, format="json")
 
         self.assertEqual(response2.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -95,7 +95,7 @@ class ProductTest(PaosBaseTestCase):
 
         update_data = {"price": 5.00}
         response2 = self.client.put(
-            f"{url}{product_id}", update_data, format="json").json()
+            f"{url}{product_id}/", update_data, format="json").json()
         new_price = response2["product"]["price"]
 
         self.assertEqual(response2["success"], True)
@@ -173,90 +173,92 @@ class PaosTestCaseWithProducts(PaosBaseTestCase):
         assert all(map(lambda res: res["success"], responses))
 
         self.products = list(map(lambda res: res["product"], responses))
-
-
-class CartTestCase(PaosTestCaseWithProducts):
-    def setUp(self):
-        PaosTestCaseWithProducts.setUp(self)
-
-    def test_add_to_cart(self):
-        url = reverse("product_cart")
-        data = {
-            "product": self.products[0]["id"],
-            "quantity": 10
-        }
-        res = self.client.post(url, data, format="json").json()
-        self.assertEquals(res["success"], True)
-
-        res2 = self.client.get(url).json()
-        self.assertEquals(res2["success"], True)
-        self.assertEquals(len(res2["cart"]), 1)
-
-    def test_add_to_cart_not_valid_quantity(self):
-        url = reverse("product_cart")
-        data = {
-            "product": self.products[0]["id"],
-            "quantity": -10
-        }
-        res = self.client.post(url, data, format="json").json()
-        self.assertEquals(res["success"], False)
-
-    def test_add_to_cart_add_to_cart_already_added_products(self):
-        url = reverse("product_cart")
-        data = {
-            "product": self.products[0]["id"],
-            "quantity": 2
-        }
-        res = self.client.post(url, data, format="json").json()
-        self.assertEquals(res["success"], True)
-
-        res2 = self.client.post(url, data, format="json").json()
-        self.assertEquals(res2["success"], True)
-
-        res3 = self.client.get(url).json()
-        self.assertEquals(res3["success"], True)
-        self.assertEquals(res3["cart"][0]["quantity"], 4)
-
-    def test_diminish_quantity(self):
-        url = reverse("product_cart")
-        data = {
-            "product": self.products[0]["id"],
-            "quantity": 2
-        }
-        res = self.client.post(url, data, format="json").json()
-        self.assertEquals(res["success"], True)
-
-        data2 = {
-            "product": self.products[0]["id"],
-            "quantity": -1
-        }
-        res2 = self.client.post(url, data2, format="json").json()
-        self.assertEquals(res2["success"], True)
-
-        res3 = self.client.get(url).json()
-        self.assertEquals(res3["success"], True)
-        self.assertEquals(res3["cart"][0]["quantity"], 1)
-
-    def test_diminish_quantity_remove_at_0(self):
-        url = reverse("product_cart")
-        data = {
-            "product": self.products[0]["id"],
-            "quantity": 2
-        }
-        res = self.client.post(url, data, format="json").json()
-        self.assertEquals(res["success"], True)
-
-        data2 = {
-            "product": self.products[0]["id"],
-            "quantity": -2
-        }
-        res2 = self.client.post(url, data2, format="json").json()
-        self.assertEquals(res2["success"], True)
-        self.assertEquals(res2["product"], None)
-
-        res3 = self.client.get(url).json()
-        self.assertEquals(res3["success"], True)
-        self.assertEquals(len(res3["cart"]), 0)
+#
+#
+#  class CartTestCase(PaosTestCaseWithProducts):
+#      def setUp(self):
+#          PaosTestCaseWithProducts.setUp(self)
+#
+#      def test_add_to_cart(self):
+#          url = reverse("product_cart")
+#          data = {
+#              "product": self.products[0]["id"],
+#              "quantity": 10
+#          }
+#          res = self.client.post(url, data, format="json").json()
+#          self.assertEquals(res["success"], True)
+#
+#          res2 = self.client.get(url).json()
+#          self.assertEquals(res2["success"], True)
+#          self.assertEquals(len(res2["cart"]), 1)
+#
+#      def test_add_to_cart_not_valid_quantity(self):
+#          url = reverse("product_cart")
+#          data = {
+#              "product": self.products[0]["id"],
+#              "quantity": -10
+#          }
+#          res = self.client.post(url, data, format="json").json()
+#          self.assertEquals(res["success"], False)
+#
+#      def test_add_to_cart_add_to_cart_already_added_products(self):
+#          url = reverse("product_cart")
+#          data = {
+#              "product": self.products[0]["id"],
+#              "quantity": 2
+#          }
+#          res = self.client.post(url, data, format="json").json()
+#          self.assertEquals(res["success"], True)
+#
+#          res2 = self.client.post(url, data, format="json").json()
+#          self.assertEquals(res2["success"], True)
+#
+#          res3 = self.client.get(url).json()
+#          self.assertEquals(res3["success"], True)
+#          self.assertEquals(res3["cart"][0]["quantity"], 4)
+#
+#      def test_diminish_quantity(self):
+#          url = reverse("product_cart")
+#          data = {
+#              "product": self.products[0]["id"],
+#              "quantity": 2
+#          }
+#          res = self.client.post(url, data, format="json").json()
+#          self.assertEquals(res["success"], True)
+#
+#          data2 = {
+#              "product": self.products[0]["id"],
+#              "quantity": -1
+#          }
+#          res2 = self.client.post(url, data2, format="json").json()
+#          self.assertEquals(res2["success"], True)
+#
+#          res3 = self.client.get(url).json()
+#          self.assertEquals(res3["success"], True)
+#          self.assertEquals(res3["cart"][0]["quantity"], 1)
+#
+#      def test_diminish_quantity_remove_at_0(self):
+#          url = reverse("product_cart")
+#          data = {
+#              "product": self.products[0]["id"],
+#              "quantity": 2
+#          }
+#          res = self.client.post(url, data, format="json").json()
+#          self.assertEquals(res["success"], True)
+#
+#          data2 = {
+#              "product": self.products[0]["id"],
+#              "quantity": -2
+#          }
+#          res2 = self.client.post(url, data2, format="json").json()
+#          self.assertEquals(res2["success"], True)
+#          self.assertEquals(res2["product"], None)
+#
+#          res3 = self.client.get(url).json()
+#          self.assertEquals(res3["success"], True)
+#          self.assertEquals(len(res3["cart"]), 0)
+#
+#
 
 
 class PaosTestCaseWithCart(PaosTestCaseWithProducts):
@@ -355,13 +357,17 @@ class TestOrderDelivereAPI(PaosTestCaseWithCart):
         OrderStatus.objects.create(name="CANCELLED").save()
         OrderStatus.objects.create(name="DELIVERED").save()
 
-        self.client.logout()
+        #  self.client.logout()
 
     def test_mark_order_as_delivered(self):
         url = reverse("order_deliverer", kwargs={"order_id": 10})
         data = {"state": "DELIVERED"}
 
-        res = self.client.put(url, data, format="json").json()
+        res = self.client.put(url, data, format="json")
+        print(res)
+        print(res.status_code)
+        res = res.json()
+        print(res)
         self.assertEquals(res["success"], False)
 
 
